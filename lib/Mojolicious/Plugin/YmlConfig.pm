@@ -1,5 +1,9 @@
 package Mojolicious::Plugin::YmlConfig;
 
+BEGIN {
+    $Mojolicious::Plugin::YmlConfig::VERSION = '0.001';
+}
+
 use strict;
 
 # Other modules:
@@ -31,10 +35,31 @@ sub register {
 
 1;    # Magic true value required at end of module
 
-__END__
+=pod
+
+=head1 NAME
+
+Mojolicious::Plugin::YmlConfig
+
+=head1 VERSION
+
+version 0.001
 
 =head1 NAME
 
 B<Mojolicious::Plugin::YmlConfig> - [Mojolicious plugin for loading yaml config file]
 
+=head1 AUTHOR
 
+Siddhartha Basu <biosidd@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Siddhartha Basu.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+__END__

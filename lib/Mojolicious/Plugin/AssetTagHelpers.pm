@@ -1,5 +1,9 @@
 package Mojolicious::Plugin::AssetTagHelpers;
 
+BEGIN {
+    $Mojolicious::Plugin::AssetTagHelpers::VERSION = '0.001';
+}
+
 use strict;
 
 # Other modules:
@@ -50,7 +54,8 @@ sub register {
             my $tags;
             if (%options) {
                 if ( defined $options{size} ) {
-                    $tags = qq/height="$options{size}" width="$options{size}"/;
+                    $tags
+                        = qq/height="$options{size}" width="$options{size}"/;
                 }
                 if ( defined $options{alt} ) {
                     $tags .= qq/alt="$options{alt}"/;
@@ -246,13 +251,32 @@ sub compute_asset_path {
 
 1;    # Magic true value required at end of module
 
-__END__
+=pod
+
+=head1 NAME
+
+Mojolicious::Plugin::AssetTagHelpers
+
+=head1 VERSION
+
+version 0.001
 
 =head1 NAME
 
 B<Mojolicious::Plugin::AssetTagHelpers> - [Tag helpers for javascripts,images and
 stylesheets]
 
+=head1 AUTHOR
 
+Siddhartha Basu <biosidd@gmail.com>
 
+=head1 COPYRIGHT AND LICENSE
 
+This software is copyright (c) 2010 by Siddhartha Basu.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+__END__

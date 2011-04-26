@@ -1,5 +1,9 @@
 package Mojolicious::Plugin::Modware::Oracle;
 
+BEGIN {
+    $Mojolicious::Plugin::Modware::Oracle::VERSION = '0.001';
+}
+
 use strict;
 
 # Other modules:
@@ -68,7 +72,8 @@ sub register {
     $fclass_name->add_column('is_deleted');
     $fclass_name->register_column('is_deleted');
 
-    $instance->handler->source('Organism::Organism')->remove_column('comment');
+    $instance->handler->source('Organism::Organism')
+        ->remove_column('comment');
 
     if ( !$app->can('modware') ) {
         ref($app)->attr( 'modware' => sub {$instance} );
@@ -77,11 +82,32 @@ sub register {
 
 1;    # Magic true value required at end of module
 
-__END__
+=pod
+
+=head1 NAME
+
+Mojolicious::Plugin::Modware::Oracle
+
+=head1 VERSION
+
+version 0.001
 
 =head1 NAME
 
 B<Mojolicious::Plugin::Modware::Oracle> - [Mojolicious plugin for loading modware with
 oracle database]
 
+=head1 AUTHOR
 
+Siddhartha Basu <biosidd@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Siddhartha Basu.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+__END__

@@ -10,7 +10,7 @@ sub startup {
 
     # Routes
     my $r = $self->routes;
-    $self->plugin( 'asset_tag_helpers');
+    $self->plugin('asset_tag_helpers');
     my $books = $r->route('/books')->to('controller-cache#books');
 }
 
