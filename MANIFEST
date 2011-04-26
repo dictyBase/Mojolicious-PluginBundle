@@ -29,5 +29,4 @@ t/lib/product/public/stylesheets/monkey.css
 t/lib/product/templates/default/list.html.ep
 t/lib/product/templates/layouts/default.html.ep
 t/release-distmeta.t
-t/release-pod-coverage.t
 t/release-pod-syntax.t
