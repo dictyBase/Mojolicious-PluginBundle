@@ -60,6 +60,8 @@ L<BCS-Oracle|Mojolicious::Plugin::Bcs::Oracle>
 B<BCS-Oracle> is identical with I<BCS> plugin except it is specifically tuned for working
 with oracle database.
 
+=back
+
 =head1 AUTHOR
 
 Siddhartha Basu <biosidd@gmail.com>
