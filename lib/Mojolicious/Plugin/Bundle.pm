@@ -62,6 +62,12 @@ with oracle database.
 
 =back
 
+=over
+
+=item For every plugin refer to its individual documentation.
+
+=back
+
 =head1 AUTHOR
 
 Siddhartha Basu <biosidd@gmail.com>
