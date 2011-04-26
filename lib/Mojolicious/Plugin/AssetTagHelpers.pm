@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::AssetTagHelpers;
 
 BEGIN {
-    $Mojolicious::Plugin::AssetTagHelpers::VERSION = '0.001';
+    $Mojolicious::Plugin::AssetTagHelpers::VERSION = '0.002';
 }
 
 use strict;
@@ -259,7 +259,7 @@ Mojolicious::Plugin::AssetTagHelpers
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 NAME
 

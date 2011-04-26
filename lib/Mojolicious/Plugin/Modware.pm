@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Modware;
 
 BEGIN {
-    $Mojolicious::Plugin::Modware::VERSION = '0.001';
+    $Mojolicious::Plugin::Modware::VERSION = '0.002';
 }
 
 use strict;
@@ -57,7 +57,7 @@ Mojolicious::Plugin::Modware
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 NAME
 
