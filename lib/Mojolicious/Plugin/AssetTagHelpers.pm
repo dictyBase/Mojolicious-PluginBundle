@@ -6,7 +6,7 @@ use strict;
 use base qw/Mojolicious::Plugin/;
 use Mojo::ByteStream;
 use Regexp::Common qw/URI/;
-use Mojo::Client;
+use Mojo::UserAgent;
 use HTTP::Date;
 use File::stat;
 use File::Spec::Functions;
@@ -37,7 +37,7 @@ sub register {
         $app->log->debug("relative url root: $url");
 
 # -- in case of non-default value strip off the name before serving the assets
-        $app->static->prefix($url);
+        $app->static->root($url);
     }
     if ( my $host = $self->compute_asset_host( @_[ 1, -1 ] ) ) {
         $self->asset_host($host);
@@ -50,19 +50,19 @@ sub register {
             my $tags;
             if (%options) {
                 if ( defined $options{size} ) {
-                    $tags = qq/height="$options{size} width="$options{size}"/;
+                    $tags = qq/height="$options{size}" width="$options{size}"/;
                 }
                 if ( defined $options{alt} ) {
                     $tags .= qq/alt="$options{alt}"/;
                 }
                 for my $opt_name ( @{ $self->image_options } ) {
-                    $tags .= qq/$opt_name="$options{$opt_name}"/
+                    $tags .= qq/ $opt_name="$options{$opt_name}"/
                         if defined $options{$opt_name};
                 }
             }
             else {
                 my $alt_name = $self->compute_alt_name($name);
-                $tags .= $tags .= qq/alt="$alt_name"/;
+                $tags .= qq/alt="$alt_name"/;
             }
 
             my $source = $self->compute_image_path( $name, $self->true );
@@ -162,7 +162,7 @@ sub compute_alt_name {
 sub compute_asset_id {
     my ( $self, $file ) = @_;
     if ( $file =~ $RE{URI}{HTTP} ) {
-        my $tx = Mojo::Client->new->head($file);
+        my $tx = Mojo::UserAgent->new->head($file);
         if ( $tx->res->code == 200 ) {
             my $asset_id = str2time( $tx->res->headers->last_modified );
             return $asset_id;
@@ -182,7 +182,7 @@ sub compute_image_path {
     my $image_path
         = $default
         ? $self->compute_asset_path( catfile( $self->image_dir, $name ) )
-        : $self->compute_asset_dir($name);
+        : $self->compute_asset_path($name);
     my $asset_id
         = $default
         ? $self->compute_asset_id( catfile( $self->image_dir, $name ) )
