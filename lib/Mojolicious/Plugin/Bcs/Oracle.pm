@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Bcs::Oracle;
 
 BEGIN {
-    $Mojolicious::Plugin::Bcs::Oracle::VERSION = '0.002';
+    $Mojolicious::Plugin::Bcs::Oracle::VERSION = '0.003';
 }
 
 use strict;
@@ -85,7 +85,7 @@ Mojolicious::Plugin::Bcs::Oracle
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 NAME
 

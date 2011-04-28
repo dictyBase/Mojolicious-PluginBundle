@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::YmlConfig;
 
 BEGIN {
-    $Mojolicious::Plugin::YmlConfig::VERSION = '0.002';
+    $Mojolicious::Plugin::YmlConfig::VERSION = '0.003';
 }
 
 use strict;
@@ -44,7 +44,7 @@ Mojolicious::Plugin::YmlConfig
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 NAME
 

@@ -1,4 +1,4 @@
-package Bcs;
+package BcsOra;
 
 use strict;
 use base 'Mojolicious';

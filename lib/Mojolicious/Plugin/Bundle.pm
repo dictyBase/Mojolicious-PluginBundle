@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Bundle;
 
 BEGIN {
-    $Mojolicious::Plugin::Bundle::VERSION = '0.002';
+    $Mojolicious::Plugin::Bundle::VERSION = '0.003';
 }
 use strict;
 
@@ -15,7 +15,7 @@ Mojolicious::Plugin::Bundle - Collection of mojolicious plugins
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
