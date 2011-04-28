@@ -70,7 +70,7 @@ sub register {
     $schema->source('Organism::Organism')->remove_column('comment');
 
     if ( !$app->can('oracle_model') ) {
-        ref($app)->attr( 'oracle_model' => sub {$instance} );
+        ref($app)->attr( 'oracle_model' => sub {$schema} );
     }
 }
 
