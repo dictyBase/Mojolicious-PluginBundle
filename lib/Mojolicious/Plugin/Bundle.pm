@@ -12,13 +12,14 @@ __END__
 
 #In mojolicious application
 
-$self->plugin('yml_config');
+  $self->plugin('yml_config');
 
-$self->plugin('asset_tag_helper');
+  $self->plugin('asset_tag_helper');
 
-$self->plugin('bcs');
+  $self->plugin('bcs');
 
-$self->plugin('bcs-oracle');
+  $self->plugin('bcs-oracle');
+
 
 =head1 DESCRIPTION
 
