@@ -17,7 +17,7 @@ my %module_build_args = (
     'Siddhartha Basu <biosidd@gmail.com>'
   ],
   'dist_name' => 'Mojolicious-Plugin-Bundle',
-  'dist_version' => '0.003',
+  'dist_version' => '0.004',
   'license' => 'perl',
   'module_name' => 'Mojolicious::Plugin::Bundle',
   'recommends' => {},

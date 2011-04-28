@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Bcs::Oracle;
 
 BEGIN {
-    $Mojolicious::Plugin::Bcs::Oracle::VERSION = '0.003';
+    $Mojolicious::Plugin::Bcs::Oracle::VERSION = '0.004';
 }
 
 use strict;
@@ -61,14 +61,13 @@ sub register {
         }
     );
 
-    my $fsource     = $instance->handler->source('Sequence::Feature');
+    my $fsource     = $schema->source('Sequence::Feature');
     my $fclass_name = 'Bio::Chado::Schema::' . $fsource->source_name;
     $fsource->add_column('is_deleted');
     $fclass_name->add_column('is_deleted');
     $fclass_name->register_column('is_deleted');
 
-    $instance->handler->source('Organism::Organism')
-        ->remove_column('comment');
+    $schema->source('Organism::Organism')->remove_column('comment');
 
     if ( !$app->can('oracle_model') ) {
         ref($app)->attr( 'oracle_model' => sub {$instance} );
@@ -85,7 +84,7 @@ Mojolicious::Plugin::Bcs::Oracle
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 NAME
 

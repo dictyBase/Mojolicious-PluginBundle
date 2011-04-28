@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Bcs;
 
 BEGIN {
-    $Mojolicious::Plugin::Bcs::VERSION = '0.003';
+    $Mojolicious::Plugin::Bcs::VERSION = '0.004';
 }
 
 use strict;
@@ -51,7 +51,7 @@ Mojolicious::Plugin::Bcs
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 NAME
 

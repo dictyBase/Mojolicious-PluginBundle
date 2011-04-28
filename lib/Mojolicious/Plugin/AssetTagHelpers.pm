@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::AssetTagHelpers;
 
 BEGIN {
-    $Mojolicious::Plugin::AssetTagHelpers::VERSION = '0.003';
+    $Mojolicious::Plugin::AssetTagHelpers::VERSION = '0.004';
 }
 
 use strict;
@@ -168,11 +168,13 @@ sub compute_asset_id {
     my ( $self, $file ) = @_;
     if ( $file =~ $RE{URI}{HTTP} ) {
         my $tx = Mojo::UserAgent->new->head($file);
-        if ( $tx->res->code == 200 ) {
-            my $asset_id = str2time( $tx->res->headers->last_modified );
+        if ( my $res = $tx->success ) {
+            my $asset_id = str2time( $res->headers->last_modified );
             return $asset_id;
         }
-        return;
+        else {
+            return;
+        }
     }
 
     my $full_path = catfile( $self->asset_dir, $file );
@@ -259,7 +261,7 @@ Mojolicious::Plugin::AssetTagHelpers
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 NAME
 

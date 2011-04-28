@@ -1,7 +1,7 @@
 package Mojolicious::Plugin::Modware::Oracle;
 
 BEGIN {
-    $Mojolicious::Plugin::Modware::Oracle::VERSION = '0.003';
+    $Mojolicious::Plugin::Modware::Oracle::VERSION = '0.004';
 }
 
 use strict;
@@ -90,7 +90,7 @@ Mojolicious::Plugin::Modware::Oracle
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 NAME
 
