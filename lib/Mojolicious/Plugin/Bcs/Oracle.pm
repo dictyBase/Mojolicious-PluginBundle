@@ -57,17 +57,17 @@ sub register {
         }
     );
 
-    my $fsource     = $instance->handler->source('Sequence::Feature');
+    my $fsource     = $schema->source('Sequence::Feature');
     my $fclass_name = 'Bio::Chado::Schema::' . $fsource->source_name;
     $fsource->add_column('is_deleted');
     $fclass_name->add_column('is_deleted');
     $fclass_name->register_column('is_deleted');
 
-    $instance->handler->source('Organism::Organism')
+    $schema->source('Organism::Organism')
         ->remove_column('comment');
 
     if ( !$app->can('oracle_model') ) {
-        ref($app)->attr( 'oracle_model' => sub {$instance} );
+        ref($app)->attr( 'oracle_model' => sub {$schema} );
     }
 }
 
