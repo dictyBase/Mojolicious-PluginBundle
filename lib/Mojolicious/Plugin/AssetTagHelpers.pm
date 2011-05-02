@@ -1,9 +1,9 @@
 package Mojolicious::Plugin::AssetTagHelpers;
 
-use strict;
-
 # Other modules:
-use base qw/Mojolicious::Plugin/;
+use strict;
+use warnings;
+use Mojo::Base 'Mojolicious::Plugin';
 use Mojo::ByteStream;
 use Regexp::Common qw/URI/;
 use Mojo::UserAgent;
@@ -11,22 +11,24 @@ use HTTP::Date;
 use File::stat;
 use File::Spec::Functions;
 use File::Basename;
+use Scalar::Util qw/reftype/;
 
 # Module implementation
 #
 
-__PACKAGE__->attr('asset_dir');
-__PACKAGE__->attr('asset_host');
-__PACKAGE__->attr('relative_url_root');
-__PACKAGE__->attr( 'javascript_dir' => '/javascripts' );
-__PACKAGE__->attr( 'stylesheet_dir' => '/stylesheets' );
-__PACKAGE__->attr( 'image_dir'      => '/images' );
-__PACKAGE__->attr( 'javascript_ext' => '.js' );
-__PACKAGE__->attr( 'stylesheet_ext' => '.css' );
-__PACKAGE__->attr(
-    'image_options' => sub { [qw/width height class id border/] } );
-__PACKAGE__->attr('app');
-__PACKAGE__->attr( 'true' => 1 );
+has 'app';
+has 'asset_dir';
+has 'asset_host';
+has 'relative_url_root';
+has 'host_with_sub';
+has 'true'           => 1;
+has 'javascript_dir' => '/javascripts';
+has 'stylesheet_dir' => '/stylesheets';
+has 'image_dir'      => '/images';
+has 'javascript_ext' => '.js';
+has 'stylesheet_ext' => '.css';
+has 'image_options'  => sub { [qw/width height class id border/] };
+has 'ua'             => sub { Mojo::UserAgent->new };
 
 sub register {
     my ( $self, $app, $conf ) = @_;
@@ -36,7 +38,7 @@ sub register {
         $self->relative_url_root($url);
         $app->log->debug("relative url root: $url");
 
-# -- in case of non-default value strip off the name before serving the assets
+        # -- in case mojo app itself have to serve it from public
         $app->static->root($url);
     }
     if ( my $host = $self->compute_asset_host( @_[ 1, -1 ] ) ) {
@@ -50,7 +52,8 @@ sub register {
             my $tags;
             if (%options) {
                 if ( defined $options{size} ) {
-                    $tags = qq/height="$options{size}" width="$options{size}"/;
+                    $tags
+                        = qq/height="$options{size}" width="$options{size}"/;
                 }
                 if ( defined $options{alt} ) {
                     $tags .= qq/alt="$options{alt}"/;
@@ -65,7 +68,7 @@ sub register {
                 $tags .= qq/alt="$alt_name"/;
             }
 
-            my $source = $self->compute_image_path( $name, $self->true );
+            my $source = $self->compute_asset_path( $name, $self->image_dir );
             return Mojo::ByteStream->new(qq{<img src="$source" $tags/>});
         }
     );
@@ -74,7 +77,7 @@ sub register {
     $app->helper(
         javascript_include_tag => sub {
             my ( $c, $name ) = @_;
-            my $source = $self->compute_javascript_path( $name, $self->true );
+            my $source = $self->compute_javascript_path($name);
             return Mojo::ByteStream->new(
                 qq{<script src="$source" type="text/javascript"></script>});
         }
@@ -84,7 +87,7 @@ sub register {
     $app->helper(
         stylesheet_link_tag => sub {
             my ( $c, $name, %option ) = @_;
-            my $source = $self->compute_stylesheet_path( $name, $self->true );
+            my $source = $self->compute_stylesheet_path($name);
             my $media
                 = $option{media}
                 ? qq{media="$option{media}}
@@ -100,7 +103,7 @@ sub register {
         'stylesheet_path' => sub {
             my ( $c, $path ) = @_;
             return Mojo::ByteStream->new(
-                $self->compute_stylesheet_path($path) );
+                $self->compute_stylesheet_path( $path, $self->true ) );
         }
     );
 
@@ -108,22 +111,40 @@ sub register {
         'javascript_path' => sub {
             my ( $c, $path ) = @_;
             return Mojo::ByteStream->new(
-                $self->compute_javascript_path($path) );
+                $self->compute_javascript_path( $path, $self->true ) );
         }
     );
 
     $app->helper(
         'image_path' => sub {
             my ( $c, $path ) = @_;
-            return Mojo::ByteStream->new( $self->compute_image_path($path) );
+            return Mojo::ByteStream->new( $self->compute_asset_path($path) );
         }
     );
+}
+
+sub compute_javascript_path {
+    my ( $self, $name, $true ) = @_;
+    $name = $name . $self->javascript_ext if $name !~ /\.js$/;
+    return $true
+        ? $self->compute_asset_path($name)
+        : $self->compute_asset_path( $name, $self->javascript_dir );
+}
+
+sub compute_stylesheet_path {
+    my ( $self, $name, $true ) = @_;
+    $name = $name . $self->stylesheet_ext if $name !~ /\.css$/;
+    return $true
+        ? $self->compute_asset_path($name)
+        : $self->compute_asset_path( $name, $self->stylesheet_dir );
 }
 
 sub compute_relative_url {
     my ( $self, $app, $conf ) = @_;
     my $url;
-    if ( $app->can('config') and defined $app->config->{relative_url_root} ) {
+    if ( $app->can('config')
+        and defined $app->config->{relative_url_root} )
+    {
         $url = $app->config->{relative_url_root};
     }
 
@@ -136,12 +157,15 @@ sub compute_relative_url {
 sub compute_asset_host {
     my ( $self, $app, $conf ) = @_;
     my $host;
-    if ( $app->can('config') and defined $app->config->{asset_host} ) {
+    if ( $app->can('config')
+        and defined $app->config->{asset_host} )
+    {
         $host = $app->config->{asset_host};
     }
 
     if ( defined $conf and defined $conf->{asset_host} ) {
         $host = $conf->{asset_host};
+        $self->host_with_sub(1) if reftype $host eq 'CODE';
     }
     $host;
 }
@@ -168,7 +192,7 @@ sub compute_asset_id {
             return $asset_id;
         }
         else {
-        	return;
+            return;
         }
     }
 
@@ -179,71 +203,44 @@ sub compute_asset_id {
     }
 }
 
-sub compute_image_path {
-    my ( $self, $name, $default ) = @_;
-    my $image_path
-        = $default
-        ? $self->compute_asset_path( catfile( $self->image_dir, $name ) )
-        : $self->compute_asset_path($name);
-    my $asset_id
-        = $default
-        ? $self->compute_asset_id( catfile( $self->image_dir, $name ) )
-        : $self->compute_asset_id($name);
-
-    return $image_path . '?' . $asset_id if $asset_id;
-    $image_path;
+sub remote_asset_id {
+    my ( $self, $file ) = @_;
+    my $tx = $self->ua->head($file);
+    if ( my $res = $tx->success ) {
+        my $asset_id = str2time( $res->headers->last_modified );
+        return $asset_id;
+    }
 }
 
-sub compute_javascript_path {
-    my ( $self, $name, $default ) = @_;
-    my ( $js_path, $asset_id );
-    if ( $name !~ $RE{URI}{HTTP} ) {
-        $name = $name . $self->javascript_ext if $name !~ /\.js$/;
+sub local_asset_id {
+    my ( $self, $file ) = @_;
+    my $full_path = catfile( $self->asset_dir, $file );
+    if ( -e $full_path ) {
+        my $st = stat($full_path);
+        return $st->mtime;
     }
 
-    $js_path
-        = $default
-        ? $self->compute_asset_path( catfile( $self->javascript_dir, $name ) )
-        : $self->compute_asset_path($name);
-    $asset_id
-        = $default
-        ? $self->compute_asset_id( catfile( $self->javascript_dir, $name ) )
-        : $self->compute_asset_id($name);
-
-    return $js_path . '?' . $asset_id if $asset_id;
-    $js_path;
-}
-
-sub compute_stylesheet_path {
-    my ( $self, $name, $default ) = @_;
-    my ( $css_path, $asset_id );
-    if ( $name !~ $RE{URI}{HTTP} ) {
-        $name = $name . $self->stylesheet_ext if $name !~ /\.css$/;
-    }
-
-    $css_path
-        = $default
-        ? $self->compute_asset_path( catfile( $self->stylesheet_dir, $name ) )
-        : $self->compute_asset_path($name);
-
-    $asset_id
-        = $default
-        ? $self->compute_asset_id( catfile( $self->stylesheet_dir, $name ) )
-        : $self->compute_asset_id($name);
-
-    return $css_path . '?' . $asset_id if $asset_id;
-    $css_path;
 }
 
 sub compute_asset_path {
-    my ( $self, $file ) = @_;
-    return $file if $file =~ $RE{URI}{HTTP};    ## -- full http url
-    my $path
+    my ( $self, $file, $source_dir ) = @_;
+    my ( $asset_id, $path );
+    if ( $file =~ $RE{URI}{HTTP} ) {    ## -- full http url
+        $asset_id = $self->remote_asset_id($file);
+        return $asset_id ? $file . '?' . $asset_id : $file;
+    }
+    my $actual_path = $source_dir ? catfile( $source_dir, $file ) : $file;
+    $path
         = $self->relative_url_root
-        ? $self->relative_url_root . $file
-        : $file;
-    $path = $self->asset_host ? $self->asset_host . '/' . $path : $path;
-    $path;
+        ? $self->relative_url_root . $actual_path
+        : $actual_path;
+    if ( $self->asset_host ) {
+        $path     = $self->asset_host . '/' . $path;
+        $asset_id = $self->remote_asset_id($path);
+        return $asset_id ? $path . '?' . $asset_id : $path;
+    }
+    $asset_id = $self->local_asset_id($actual_path);
+    return $asset_id ? $path . '?' . $asset_id : $path;
 }
 
 1;    # Magic true value required at end of module
