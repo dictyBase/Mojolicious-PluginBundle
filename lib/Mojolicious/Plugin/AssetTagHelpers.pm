@@ -165,6 +165,7 @@ sub compute_asset_host {
 
     if ( defined $conf and defined $conf->{asset_host} ) {
         $host = $conf->{asset_host};
+        die "$host in not a http url\n" if $host !~ $RE{URI}{HTTP};
         $self->host_with_sub(1) if reftype $host eq 'CODE';
     }
     $host;
