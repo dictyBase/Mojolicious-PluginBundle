@@ -12,6 +12,7 @@ use File::stat;
 use File::Spec::Functions;
 use File::Basename;
 use Scalar::Util qw/reftype/;
+use Data::Dumper;
 
 # Module implementation
 #
@@ -28,7 +29,7 @@ has 'image_dir'      => '/images';
 has 'javascript_ext' => '.js';
 has 'stylesheet_ext' => '.css';
 has 'image_options'  => sub { [qw/width height class id border/] };
-has 'ua'             => sub { Mojo::UserAgent->new };
+has 'ua';
 
 sub register {
     my ( $self, $app, $conf ) = @_;
@@ -44,6 +45,13 @@ sub register {
     if ( my $host = $self->compute_asset_host( $app, $conf ) ) {
         $app->log->debug("got asset host $host");
         $self->asset_host($host);
+    }
+    if ( defined $conf->{mojo_ua} ) {
+        $self->ua( $conf->{mojo_ua} );
+        $self->ua->keep_alive_timeout(20);
+    }
+    else {
+        $self->ua( Mojo::UserAgent->new );
     }
 
     # -- image tag
@@ -187,38 +195,20 @@ sub compute_alt_name {
     return ucfirst $name;
 }
 
-sub compute_asset_id {
-    my ( $self, $file ) = @_;
-    if ( $file =~ $RE{URI}{HTTP} ) {
-        my $tx = Mojo::UserAgent->new->head($file);
-        if ( my $res = $tx->success ) {
-            my $asset_id = str2time( $res->headers->last_modified );
-            return $asset_id;
-        }
-        else {
-            return;
-        }
-    }
-
-    my $full_path = catfile( $self->asset_dir, $file );
-    if ( -e $full_path ) {
-        my $st = stat($full_path);
-        return $st->mtime;
-    }
-}
-
 sub remote_asset_id {
     my ( $self, $file ) = @_;
-    $self->app->log->debug("probing $file for asset_id");        
-    my $tx = $self->ua->head($file);
+    $self->app->log->debug("probing $file for asset_id");
+    my $tx = $self->ua->get($file);
     if ( my $res = $tx->success ) {
         my $asset_id = str2time( $res->headers->last_modified );
-        $self->app->log->debug("got asset id $asset_id");
-        return $asset_id;
+        if ($asset_id) {
+            $self->app->log->debug("got asset id $asset_id");
+            return $asset_id;
+        }
     }
     else {
-    	$self->app->log->debug("unable to fetch asset id for $file");
-    	$self->app->debug('error ', join("\t", $tx->error));
+        $self->app->log->debug("unable to fetch asset id for $file");
+        $self->app->log->debug( 'error ', join( "\t", $tx->error ) );
     }
 }
 

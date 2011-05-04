@@ -109,3 +109,6 @@ $app2->element_exists(
     'body a[id="custom"][href^="/tucker/images/custom"]',
     'It has mojolicious logo with custom href including relative url'
 );
+
+diag($test->app->plugins);
+
