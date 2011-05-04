@@ -41,7 +41,8 @@ sub register {
         # -- in case mojo app itself have to serve it from public
         $app->static->root($url);
     }
-    if ( my $host = $self->compute_asset_host( @_[ 1, -1 ] ) ) {
+    if ( my $host = $self->compute_asset_host( $app, $conf ) ) {
+        $app->log->debug("got asset host $host");
         $self->asset_host($host);
     }
 
@@ -166,7 +167,9 @@ sub compute_asset_host {
     if ( defined $conf and defined $conf->{asset_host} ) {
         $host = $conf->{asset_host};
         die "$host in not a http url\n" if $host !~ $RE{URI}{HTTP};
-        $self->host_with_sub(1) if reftype $host eq 'CODE';
+        if ( reftype($host) && reftype($host) == 'CODE' ) {
+            $self->host_with_sub(1);
+        }
     }
     $host;
 }
@@ -206,10 +209,16 @@ sub compute_asset_id {
 
 sub remote_asset_id {
     my ( $self, $file ) = @_;
+    $self->app->log->debug("probing $file for asset_id");        
     my $tx = $self->ua->head($file);
     if ( my $res = $tx->success ) {
         my $asset_id = str2time( $res->headers->last_modified );
+        $self->app->log->debug("got asset id $asset_id");
         return $asset_id;
+    }
+    else {
+    	$self->app->log->debug("unable to fetch asset id for $file");
+    	$self->app->debug('error ', join("\t", $tx->error));
     }
 }
 
@@ -236,7 +245,7 @@ sub compute_asset_path {
         ? $self->relative_url_root . $actual_path
         : $actual_path;
     if ( $self->asset_host ) {
-        $path     = $self->asset_host . '/' . $path;
+        $path     = $self->asset_host . $path;
         $asset_id = $self->remote_asset_id($path);
         return $asset_id ? $path . '?' . $asset_id : $path;
     }
