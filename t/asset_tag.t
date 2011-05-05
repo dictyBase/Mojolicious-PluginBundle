@@ -41,7 +41,7 @@ $app->element_exists(
 );
 
 $app->element_exists(
-    'body img[src="/images/bioimage.png"]',
+    'body img[src^="/images/bioimage.png"]',
     'It has bioimage.png as image source'
 );
 $app->element_exists(
@@ -90,7 +90,7 @@ $app2->element_exists(
 );
 
 $app2->element_exists(
-    'body img[src="/tucker/images/bioimage.png"]',
+    'body img[src^="/tucker/images/bioimage.png"]',
     'It has  bioimage.png as image source with relative url'
 );
 $app2->element_exists(
@@ -109,6 +109,4 @@ $app2->element_exists(
     'body a[id="custom"][href^="/tucker/images/custom"]',
     'It has mojolicious logo with custom href including relative url'
 );
-
-diag($test->app->plugins);
 
