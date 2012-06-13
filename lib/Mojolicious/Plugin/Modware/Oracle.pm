@@ -38,7 +38,6 @@ sub register {
     );
     my $instance   = Modware::DataSource::Chado->instance;
     my $source     = $instance->handler->source('Cv::Cvtermsynonym');
-    my $class_name = 'Bio::Chado::Schema::' . $source->source_name;
     $source->remove_column('synonym');
     $source->add_column(
         'synonym_' => {
@@ -47,27 +46,9 @@ sub register {
             size        => 1024
         }
     );
-    $class_name->add_column(
-        'synonym_' => {
-            data_type   => 'varchar',
-            is_nullable => 0,
-            size        => 1024
-        }
-    );
-    $class_name->register_column(
-        'synonym_' => {
-            data_type   => 'varchar',
-            is_nullable => 0,
-            size        => 1024
-        }
-    );
-
     my $fsource     = $instance->handler->source('Sequence::Feature');
     my $fclass_name = 'Bio::Chado::Schema::' . $fsource->source_name;
     $fsource->add_column('is_deleted');
-    $fclass_name->add_column('is_deleted');
-    $fclass_name->register_column('is_deleted');
-
     $instance->handler->source('Organism::Organism')->remove_column('comment');
 
     if ( !$app->can('modware') ) {
