@@ -33,7 +33,8 @@ has 'ua';
 
 sub register {
     my ( $self, $app, $conf ) = @_;
-    $self->asset_dir( $app->static->root );
+    my ($asset_path) = @{$app->static->paths};
+    $self->asset_dir( $asset_path );
     $self->app($app);
     if ( my $url = $self->compute_relative_url( @_[ 1, -1 ] ) ) {
         $self->relative_url_root($url);
@@ -53,6 +54,7 @@ sub register {
     else {
         $self->ua( Mojo::UserAgent->new );
     }
+    $app->log->debug("got asset dir ". $self->asset_dir);
 
     # -- image tag
     $app->helper(
@@ -225,6 +227,10 @@ sub local_asset_id {
 sub compute_asset_path {
     my ( $self, $file, $source_dir ) = @_;
     my ( $asset_id, $path );
+    $source_dir
+        ? $self->app->log->debug(
+        "computing asset path for $file with $source_dir")
+        : $self->app->log->debug("computing asset path for $file");
     if ( $file =~ $RE{URI}{HTTP} ) {    ## -- full http url
         $asset_id = $self->remote_asset_id($file);
         return $asset_id ? $file . '?' . $asset_id : $file;
@@ -239,6 +245,7 @@ sub compute_asset_path {
         $asset_id = $self->remote_asset_id($path);
         return $asset_id ? $path . '?' . $asset_id : $path;
     }
+    $self->app->log->debug("got actual path $actual_path");
     $asset_id = $self->local_asset_id($actual_path);
     return $asset_id ? $path . '?' . $asset_id : $path;
 }
