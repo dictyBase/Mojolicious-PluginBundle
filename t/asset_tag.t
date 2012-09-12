@@ -9,7 +9,7 @@ BEGIN {
 }
 
 use_ok('product');
-my $test = Test::Mojo->new( app => 'product' );
+my $test = Test::Mojo->new('product' );
 my $app = $test->get_ok('/product');
 $app->status_is(200);
 $app->content_like( qr/list of product/, 'It shows the list of product' );
@@ -25,7 +25,6 @@ $app->element_exists(
     'html head script[src^="/javascripts/custom/jumper.js?"]',
     'It has javascript source via javascript_path with asset id'
 );
-
 
 $app->element_exists(
     'html head link[href="/stylesheets/biostyle.css"]',
@@ -65,14 +64,9 @@ $app->element_exists(
     'It has mojolicious logo with custom href url'
 );
 
-$app->element_exists(
-    'body a[id="withttp"][href^="http://images"]',
-    'It has mojolicious logo with passthrough http url'
-);
-
 
 use_ok('byproduct');
-$test = Test::Mojo->new( app => 'byproduct' );
+$test = Test::Mojo->new('byproduct' );
 my $app2 = $test->get_ok('/product');
 $app2->status_is(200);
 $app2->content_like( qr/list of product/, 'It shows the list of product' );
