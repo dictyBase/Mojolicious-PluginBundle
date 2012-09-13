@@ -41,7 +41,7 @@ sub register {
         $app->log->debug("relative url root: $url");
 
         # -- in case mojo app itself have to serve it from public
-        $app->static->root($url);
+        $app->static->paths([$url]);
     }
     if ( my $host = $self->compute_asset_host( $app, $conf ) ) {
         $app->log->debug("got asset host $host");
@@ -49,7 +49,7 @@ sub register {
     }
     if ( defined $conf->{mojo_ua} ) {
         $self->ua( $conf->{mojo_ua} );
-        $self->ua->keep_alive_timeout(20);
+        $self->ua->inactivity_timeout(20);
     }
     else {
         $self->ua( Mojo::UserAgent->new );

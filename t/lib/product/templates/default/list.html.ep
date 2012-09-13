@@ -15,9 +15,5 @@ to reload the page
 <a id='custom' 
   href="<%= image_path '/images/custom/mojolicious-box.png' %>">
 </a>
-
-<a id='withttp' 
-  href="<%= image_path 'http://images/mojolicious-black.png' %>">
-</a>
   
 

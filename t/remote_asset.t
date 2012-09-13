@@ -3,6 +3,7 @@ use Test::Mojo;
 use File::Spec::Functions;
 use Mojo::UserAgent;
 use FindBin;
+use Mojo::URL;
 use lib "$FindBin::Bin/lib/product/lib";
 use MyRemote;
 
@@ -11,46 +12,35 @@ BEGIN {
 }
 
 use_ok('superasset');
-my $stest = Test::Mojo->new( app => 'superasset' );
+my $stest = Test::Mojo->new('superasset');
+MyRemote->remote_url( "http://localhost:$port" );
 $stest->head_ok('/tucker/images/bioimage.png')->status_is(200);
-MyRemote->app($stest);
 
 use_ok('remoteproduct');
-my $test = Test::Mojo->new( app => 'remoteproduct' );
+my $test = Test::Mojo->new('remoteproduct');
 my $app = $test->get_ok('/product');
 $app->status_is(200);
-$app->content_like( qr/list of product/, 'It shows the list of product' );
-my $base = $stest->build_url;
-my $url = $base->path('/tucker/javascripts/biolib.js');
-$app->element_exists(
-    "html head script[src=$url]",
-    'It matches javascript source via javascript_link_tag helper'
-);
-$url = $base->path('/tucker/javascripts/custom/jumper.js');
-$app->element_exists(
-    "html head script[src^=$url]",
-    'It starts with javascript source via javascript_path helper'
-);
 
-$url = $base->path('/tucker/stylesheets/biostyle.css');
-$app->element_exists(
-    "html head link[href=$url]",
-    'It matches stylesheet link via stylesheet_link helper'
-);
-$url = $base->path('/tucker/stylesheets/custom/jumbo.css');
-$app->element_exists(
-    "html head link[href^=$url]",
-    'It starts with stylesheet link via stylesheet_path helper'
-);
-$url = $base->path('/tucker/images/bioimage.png');
-$app->element_exists(
-    "body img[src=$url]",
-    'It matches bioimage.png source via image_tag helper'
-);
-$app->element_exists(
-    'body img[alt="Mojolicious-black"]',
-    'It matches alt attribute via image_tag helper'
-);
+$app->content_like( qr/list of product/, 'It shows the list of product' );
+my $url = make_url( $stest, '/tucker/javascripts/biolib.js' );
+$app->element_exists( "html head script[src=$url]",
+    'It matches javascript source via javascript_link_tag helper' );
+
+$url = make_url( $stest, '/tucker/javascripts/custom/jumper.js' );
+$app->element_exists( "html head script[src^=$url]",
+    'It starts with javascript source via javascript_path helper' );
+
+$url = make_url( $stest, '/tucker/stylesheets/biostyle.css' );
+$app->element_exists( "html head link[href=$url]",
+    'It matches stylesheet link via stylesheet_link helper' );
+$url = make_url( $stest, '/tucker/stylesheets/custom/jumbo.css' );
+$app->element_exists( "html head link[href^=$url]",
+    'It starts with stylesheet link via stylesheet_path helper' );
+$url = make_url( $stest, '/tucker/images/bioimage.png' );
+$app->element_exists( "body img[src=$url]",
+    'It matches bioimage.png source via image_tag helper' );
+$app->element_exists( 'body img[alt="Mojolicious-black"]',
+    'It matches alt attribute via image_tag helper' );
 $app->element_exists(
     'body a[id="size"] img[width="10"][height="10"]',
     'It matches height and width attributes via image_tag helper'
@@ -59,13 +49,15 @@ $app->element_exists(
     'body a[id="options"] img[width="10"][class="mojo"][id="foo"][border="1"]',
     'It matches all image attributes via image_tag helper'
 );
-$url = $base->path('/tucker/images/custom');
-$app->element_exists(
-    "body [href^=$url]",
-    'It matches custom href url via image_path helper'
-);
+$url = make_url( $stest, '/tucker/images/custom' );
+$app->element_exists( "body [href^=$url]",
+    'It matches custom href url via image_path helper' );
 $app->element_exists(
     'body a[id="withttp"][href^="http://images"]',
     'It matches http url via image_path helper'
 );
 
+sub make_url {
+    my ( $test, $path ) = @_;
+    return Mojo::URL->new( $test->ua->app_url . '/' )->path($path)->to_string;
+}

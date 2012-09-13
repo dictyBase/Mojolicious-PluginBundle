@@ -5,15 +5,15 @@ use strict;
 # Module implementation
 #
 
-my $APP;
+my $URL;
 
-sub app {
-	my ($class,  $app) = @_;
-	if (not defined $app) {
-		return $APP if $APP;
+sub remote_url {
+	my ($class,  $arg) = @_;
+	if (not defined $arg) {
+		return $URL if $URL;
 	}
 	else {
-		$APP = $app;
+		$URL = $arg;
 	}
 }
 
