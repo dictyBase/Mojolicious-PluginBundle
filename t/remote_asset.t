@@ -13,7 +13,7 @@ BEGIN {
 
 use_ok('superasset');
 my $stest = Test::Mojo->new('superasset');
-MyRemote->remote_url( "http://localhost:$port" );
+MyRemote->remote_url( $stest->ua->app_url );
 $stest->head_ok('/tucker/images/bioimage.png')->status_is(200);
 
 use_ok('remoteproduct');

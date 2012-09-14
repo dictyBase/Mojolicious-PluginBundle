@@ -8,15 +8,13 @@ use base 'Mojolicious';
 # This method will run once at server start
 sub startup {
     my $self = shift;
+    $self->plugin('asset_tag_helpers');
 
     # Routes
     my $r = $self->routes;
-
-    $self->plugin('asset_tag_helpers');
-
-    my $product = $r->waypoint('/product')->via('get')->to('default#list');
-    my $type = $product->waypoint('/:type')->via('get')->to('default#type');
-    $type->route('/:id')->via('get')->to('default#show');
+    $r->route('/product')->to('default#list');
+    $r->route('/product/:type')->to('default#type');
+    $r->route('/product/:type/:id')->to('default#show');
 
 }
 
