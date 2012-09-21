@@ -9,7 +9,7 @@ BEGIN {
 }
 
 use_ok('Book');
-my $test = Test::Mojo->new( app => 'Book' );
+my $test = Test::Mojo->new( 'Book' );
 $test->get_ok('/books');
 my $app = $test->app;
 can_ok( $app, 'myconfig' );
@@ -23,7 +23,7 @@ SKIP: {
     eval { require DBD::SQLite };
     skip 'Need DBD::SQLite to run test for bcs plugin' if $@;
     use_ok('Bcs');
-    my $btest = Test::Mojo->new( app => 'Bcs' );
+    my $btest = Test::Mojo->new( 'Bcs' );
     $btest->get_ok('/bcs');
     my $bapp = $btest->app;
     can_ok( $bapp, 'model' );
@@ -34,7 +34,7 @@ SKIP: {
     eval { require DBD::Oracle };
     skip 'Need DBD::Oracle to run test for bcs plugin' if $@;
     use_ok('BcsOra');
-    my $botest = Test::Mojo->new( app => 'BcsOra' );
+    my $botest = Test::Mojo->new( 'BcsOra' );
     $botest->get_ok('/bcsora');
     my $boapp = $botest->app;
     can_ok( $boapp, 'oracle_model' );
